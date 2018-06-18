@@ -1,5 +1,8 @@
 package com.epam.callcenter.entity;
 
+/**
+ * This entity class describes operator
+ */
 public class Operator {
     private String name;
     private boolean isAvailable;
@@ -14,6 +17,7 @@ public class Operator {
 
     public Operator(String name) {
         this.name = name;
+        isAvailable = true;
     }
 
     public String getName() {
