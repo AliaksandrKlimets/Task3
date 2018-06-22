@@ -6,7 +6,6 @@ import com.epam.callcenter.entity.Operator;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
-import java.util.ResourceBundle;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -16,7 +15,6 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Runner {
     public static final Logger LOGGER = Logger.getLogger("com.epam.callcenter.run");
     public static void main(String[] args) {
-        LOGGER.setResourceBundle(ResourceBundle.getBundle("log4j"));
         ArrayList<Operator> operatorList = new ArrayList<>();
         ReentrantLock lock = new ReentrantLock();
         Operator operator1 = new Operator("Alex");

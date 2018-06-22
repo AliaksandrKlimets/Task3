@@ -4,7 +4,6 @@ import com.epam.callcenter.control.ClientManager;
 import org.apache.log4j.Logger;
 
 import java.util.Random;
-import java.util.ResourceBundle;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -14,10 +13,12 @@ public class Client implements Runnable {
     private ReentrantLock lock;
     private Operator operator;
     private boolean isWaiting;
+    private static ClientManager manager;
 
     public Client(String name, ReentrantLock lock) {
         this.name = name;
         this.lock = lock;
+        manager = new ClientManager();
     }
 
     public Client() {
@@ -58,30 +59,28 @@ public class Client implements Runnable {
 
     @Override
     public void run() {
-        LOGGER.setResourceBundle(ResourceBundle.getBundle("log4j"));
         Random random = new Random();
-        boolean isConnected = ClientManager.call(this);
+        boolean isConnected = manager.call(this);
         int time = 0;
         if (isConnected) {
             try {
-                time = random.nextInt(400) + 100;
+                time = random.nextInt(800) + 1400;
                 Thread.sleep(time);
-            } catch (Exception e) {
-                LOGGER.error("I can't sleep :("+e);
+            } catch (InterruptedException e) {
+                LOGGER.error("I can't sleep :(", e);
             }
-            ClientManager.endCall(this);
+            manager.endCall(this);
         } else {
             try {
-                time = random.nextInt(400) + 100;
+                time = random.nextInt(800) + 1000;
                 Thread.sleep(time);
-            } catch (Exception e) {
-                LOGGER.error("I can't sleep :("+e);
+            } catch (InterruptedException e) {
+                LOGGER.error("I can't sleep :(", e);
             }
             if (this.isWaiting()) {
                 LOGGER.info(this.getName() + " is waiting in queue for " + time + " mills");
-                ClientManager.disconnect(this);
+                manager.disconnect(this);
             }
         }
-
     }
 }

@@ -6,7 +6,6 @@ import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 /**
  * This class is a singleton.
@@ -17,16 +16,18 @@ public class CallCenter {
     public static final Logger LOGGER = Logger.getLogger("com.epam.callcenter.entity");
     private List<Operator> operators;
     private List<Client> clientQueue;
+    private ClientManager manager;
     private static volatile CallCenter instance;
 
     private CallCenter() {
-        LOGGER.setResourceBundle(ResourceBundle.getBundle("log4j"));
         operators = new ArrayList<>();
         clientQueue = new LinkedList<>();
+        manager = new ClientManager();
     }
 
     /**
      * This method guarantees that this class has only one exemplar.
+     *
      * @return singleton object of CallCenter
      */
 
@@ -53,27 +54,29 @@ public class CallCenter {
      * @return free operator or null if there are no free operators
      */
 
-    public Operator getOperator() {
-        Operator operator = null;
+    public boolean getOperator(Client client) {
+        boolean result = false;
         for (Operator op : operators) {
             if (op.isAvailable()) {
-                operator = op;
+                client.setOperator(op);
                 op.setAvailable(false);
+                result = true;
                 break;
             }
         }
-        return operator;
+        return result;
     }
 
     /**
      * This method returns operator into free status
-     * @param operator
+     *
+     * @param operator it is a operator who come back from client
      */
 
     public void returnOperator(Operator operator) {
         if (clientQueue.size() != 0) {
             LOGGER.info(clientQueue.get(0).getName() + " leave queue and talking to " + operator.getName());
-            ClientManager.connectToOperator(acceptClientFromQueue(), operator);
+            manager.connectToOperator(acceptClientFromQueue(), operator);
         } else {
             operator.setAvailable(true);
         }
@@ -87,10 +90,11 @@ public class CallCenter {
 
     /**
      * This method delete client from queue and return him
+     *
      * @return client from queue
      */
 
-    public Client acceptClientFromQueue() {
+    private Client acceptClientFromQueue() {
         Client result = clientQueue.get(0);
         result.setWaiting(false);
         clientQueue.remove(clientQueue.get(0));
@@ -107,7 +111,8 @@ public class CallCenter {
         StringBuilder result = new StringBuilder();
         result.append("Our operators: ");
         for (Operator operator : operators) {
-            result.append(operator.getName() + "; ");
+            result.append(operator.getName());
+            result.append("; ");
         }
         return result.toString();
     }
